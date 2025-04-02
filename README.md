@@ -15,12 +15,12 @@
 1. `python app.py`
 
 ### 目录结构
-project-root/
-│── app.py               # Flask 入口文件
-│── static/              # 静态资源（如图片、CSS、JS）
-│── templates/           # HTML 模板文件
-│── requirements.txt     # 依赖文件
-│── README.md           
+project-root/<br/>
+│── app.py <br/>              # Flask 入口文件
+│── static/<br/>              # 静态资源（如图片、CSS、JS）
+│── templates/<br/>           # HTML 模板文件
+│── requirements.txt<br/>     # 依赖文件
+│── README.md<br/>           
 
 
 ### 建议在虚拟环境运行
