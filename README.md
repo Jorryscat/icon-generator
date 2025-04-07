@@ -33,9 +33,9 @@ icon-generator/ <br/>
 │ ├── app.py # 应用入口 <br/>
 │ ├── config.py # 配置文件 <br/>
 │ ├── routes.py # API 路由 <br/>
+│ ├── icons/ #基础样式图标库 <br/>
 │ ├── services/ # 业务逻辑 <br/>
 │ │ └── icon_generator.py # 图标生成器 <br/>
-│ └── static/ # 静态资源（CSS、JS 等） <b`r/>
 │ └── style.css # 样式文件 <br/>
 ├── frontend/ # React 前端 <br/>
 │ ├── package.json # 依赖管理文件 <br/>

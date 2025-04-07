@@ -1,22 +1,7 @@
+import math
 import os
 import re
-
-def generate_circle_base(color, size=(256, 256), padding=20):
-    """生成圆形底托"""
-    radius = size[0] // 2 - padding
-    center = (size[0] // 2, size[1] // 2)
-    svg_content = f'''
-    <circle cx="{center[0]}" cy="{center[1]}" r="{radius}" fill="rgb{color}" />'''
-    # print("生成的圆形底托 SVG:\n", svg_content)  # 打印底托信息
-    return svg_content.strip()
-
-def generate_square_base(color, size=(256, 256), padding=20, corner_radius=20):
-    """生成方形底托"""
-    inner_size = (size[0] - 2 * padding, size[1] - 2 * padding)
-    svg_content = f'''
-    <rect x="{padding}" y="{padding}" width="{inner_size[0]}" height="{inner_size[1]}" fill="rgb{color}" rx="{corner_radius}" ry="{corner_radius}"/>'''
-    # print("生成的方形底托 SVG:\n", svg_content)  # 打印底托信息
-    return svg_content.strip()
+from .components.base import generate_circle_base, generate_square_base, generate_hexagon_base  # 导入底托生成函数
 
 def load_icon(icon_name, icon_color):
     """加载 SVG 图标并改变填充颜色"""
@@ -76,16 +61,43 @@ def convert_svg_to_svg(base_svg, icon_svg, icon_scale=0.6):
     # print("组合后的最终 SVG:\n", combined_svg)  # 打印组合后的 SVG 信息
     return combined_svg.strip()
 
-def generate_glass_icon(icon_name, shape, icon_color, background_color, output_format='svg', icon_scale=0.6, corner_radius=20):
+def generate_flat_icon(icon_name, shape, icon_color, background_color, output_format='svg', icon_scale=0.6, corner_radius=0, border_color=None, border_width=0):
     """生成玻璃效果图标并返回 SVG 格式"""
     base_size = (256, 256)  # 设置基础尺寸
     base_padding = 20 # 设置内边距
 
+    # 限制 icon_size_ratio 的范围在 0 到 1 之间
+    if icon_scale < 0:
+        icon_scale = 0
+    elif icon_scale > 1:
+        icon_scale = 1
+
 
     if shape == "circle":
-        base_svg = generate_circle_base(background_color)
+        base_svg = generate_circle_base(
+            background_color=background_color, 
+            size=base_size, 
+            padding=base_padding, 
+            border_color=border_color,  # 传递边框颜色
+            border_width=border_width   # 传递边框宽度
+        )
     elif shape == "square":
-        base_svg = generate_square_base(color = background_color, size = base_size, padding= base_padding, corner_radius = corner_radius)
+        base_svg = generate_square_base(
+            background_color=background_color, 
+            size=base_size, 
+            padding=base_padding, 
+            corner_radius=corner_radius,
+            border_color=border_color,  # 传递边框颜色
+            border_width=border_width   # 传递边框宽度
+        )
+    elif shape == "hexagon":  # 新增六边形支持
+        base_svg = generate_hexagon_base(
+            background_color=background_color, 
+            size=base_size, 
+            padding=base_padding, 
+            border_color=border_color,  # 传递边框颜色
+            border_width=border_width   # 传递边框宽度
+        )
     else:
         raise ValueError("Unsupported shape")
 

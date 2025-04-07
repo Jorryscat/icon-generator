@@ -1,4 +1,4 @@
-# 忽略所有虚拟环境文件夹
+# 忽略虚拟环境文件夹
 venv/
 **/venv/
 
@@ -13,21 +13,8 @@ templates/
 # 忽略后端的日志文件
 *.log
 
-# 忽略前端构建文件夹
-frontend/build/
-frontend/node_modules/
-
-# 忽略前端的临时文件
-frontend/.next/
-frontend/.cache/
-
 # 忽略全局的临时文件和配置文件
-.DS_Store
-Thumbs.db
 *.env
 *.env.local
 *.env.development
 *.env.production
-
-# 忽略 VS Code 工作区文件
-.vscode/
