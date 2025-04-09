@@ -62,3 +62,25 @@ body {
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
+
+/* 定义 light-flow 动画 */
+@keyframes light-flow {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-light-flow {
+  background-size: 200% 100%;
+  animation: light-flow 1.4s infinite linear;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(16, 155, 255, 0.962) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+}

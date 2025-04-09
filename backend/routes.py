@@ -1,8 +1,12 @@
+import os
 from flask import Flask, jsonify, request, Response
+from flask_cors import CORS
 from services.icon_generator import generate_flat_icon
 
 def initialize_routes(app):
     """初始化 API 路由"""
+    CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})  # 仅允许特定来源
+
     @app.route("/api/generate-flat-icon", methods=["POST"])
     def generate_glass_icon_route():
         data = request.get_json()
@@ -32,8 +36,23 @@ def initialize_routes(app):
         try:
             if output_format == 'svg':
                 svg_output = generate_flat_icon(icon_name, shape, icon_color, background_color, output_format='svg',icon_scale = icon_scale, corner_radius=corner_radius, border_color=border_color, border_width=border_width)
-                return Response(svg_output, mimetype="image/svg+xml")  # 返回 SVG 响应
+                return jsonify({"data": {"svg": svg_output}})
             else:
                 raise ValueError("Unsupported output format")
         except ValueError as e:
             return jsonify({"error": str(e)}), 404
+
+    @app.route("/api/icon-name", methods=["GET"])
+    def get_all_icons():
+        """返回 icons 文件夹下所有图标名称（去掉 .svg 后缀）"""
+        icons_folder = os.path.join(os.getcwd(), "icons")  # 假设 icons 文件夹在项目根目录
+        if not os.path.exists(icons_folder):
+            return jsonify({"error": "Icons folder not found"}), 404
+        
+        # 获取所有 .svg 文件的文件名并去掉后缀
+        icon_names = [
+            os.path.splitext(filename)[0]
+            for filename in os.listdir(icons_folder)
+            if filename.endswith(".svg")
+        ]
+        return jsonify({"data":{"icons": icon_names}})

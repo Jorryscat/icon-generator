@@ -55,7 +55,7 @@ def convert_svg_to_svg(base_svg, icon_svg, icon_scale=0.6):
 
     combined_svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{base_width}" height="{base_height}">
         {base_svg}
-        {scaled_icon_content}  <!-- 插入缩放后的图标内容 -->
+        {scaled_icon_content}
     </svg>'''
 
     # print("组合后的最终 SVG:\n", combined_svg)  # 打印组合后的 SVG 信息
