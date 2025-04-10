@@ -110,6 +110,7 @@ def generate_flat_icon(icon_name, shape, icon_color, background_color, output_fo
             background_color=background_color, 
             size=base_size, 
             padding=base_padding, 
+            corner_radius=corner_radius,
             glassmorphism=glassmorphism,  # 传递玻璃效果参数
             color_richness=color_richness  # 传递颜色丰富度
         )

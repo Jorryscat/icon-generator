@@ -105,54 +105,7 @@ def generate_square_base(background_color, size=(256, 256), padding=20, corner_r
     """生成方形底托"""
     return generate_svg_base("square", background_color=background_color, size=size, padding=padding, corner_radius=corner_radius, border_color=border_color, border_width=border_width, color_richness=color_richness, glassmorphism=glassmorphism)
 
-def generate_hexagon_base(background_color, size=(256, 256), padding=20, corner_radius=20, border_color=None, border_width=0, color_richness=1, glassmorphism=False):
-    """生成带圆角的六边形底托，确保顶点在 Y 轴上"""
-    radius = size[0] // 2 - padding
-    center = (size[0] // 2, size[1] // 2)
-
-    # 计算六边形的6个顶点坐标，确保第一个顶点在正上方
-    points = []
-    for i in range(6):
-        angle = math.radians(i * 60 - 90)  # 从 -90 度开始，确保第一个顶点在正上方
-        x = center[0] + radius * math.cos(angle)
-        y = center[1] + radius * math.sin(angle)
-        points.append((x, y))
-
-    # 如果 corner_radius 大于 0，则为每个角生成圆角
-    if corner_radius > 0:
-        rounded_points = []
-        for i in range(6):
-            # 获取每对相邻的顶点
-            p1 = points[i]
-            p2 = points[(i + 1) % 6]  # 循环回来
-
-            # 计算圆角方向，生成插值点
-            # 计算两点之间的方向向量
-            angle = math.atan2(p2[1] - p1[1], p2[0] - p1[0])
-            # 计算圆角的切线位置
-            p1_tangent = (p1[0] + corner_radius * math.cos(angle), p1[1] + corner_radius * math.sin(angle))
-            p2_tangent = (p2[0] - corner_radius * math.cos(angle), p2[1] - corner_radius * math.sin(angle))
-
-            # 插入圆角点
-            rounded_points.append(p1)
-            rounded_points.append(p1_tangent)
-            rounded_points.append(p2_tangent)
-        
-        # 最后添加最后一个顶点
-        rounded_points.append(points[-1])
-
-        # 将圆角后的顶点转换为字符串形式
-        points_str = " ".join([f"{x},{y}" for x, y in rounded_points])
-
-        # 生成 SVG 图形并返回
-        return generate_svg_base("hexagon", points=points_str, background_color=background_color, size=size, padding=padding, border_color=border_color, border_width=border_width, color_richness=color_richness, glassmorphism=glassmorphism)
-
-    else:
-        # 如果没有圆角，则使用原始顶点数据生成普通六边形
-        points_str = " ".join([f"{x},{y}" for x, y in points])
-        return generate_svg_base("hexagon", points=points_str, background_color=background_color, size=size, padding=padding, border_color=border_color, border_width=border_width, color_richness=color_richness, glassmorphism=glassmorphism)
-
-
+# 辅助函数：调整点以生成圆角路径（适用于六边形和三角形）
 def adjust_points_for_corner_radius(points, corner_radius):
     """调整点以生成圆角路径"""
     path_data = []
@@ -187,6 +140,41 @@ def adjust_points_for_corner_radius(points, corner_radius):
 
     path_data.append("Z")  # 闭合路径
     return " ".join(path_data)
+
+
+def generate_hexagon_base(background_color, size=(256, 256), padding=20, corner_radius=0, border_color=None, border_width=0, color_richness=1, glassmorphism=False):
+    """生成带圆角的六边形底托，确保顶点在 Y 轴上"""
+    radius = size[0] // 2 - padding
+    center = (size[0] // 2, size[1] // 2)
+
+    # 计算六边形的6个顶点坐标，确保第一个顶点在正上方
+    points = []
+    for i in range(6):
+        angle = math.radians(i * 60 - 90)  # 从 -90 度开始，确保第一个顶点在正上方
+        x = center[0] + radius * math.cos(angle)
+        y = center[1] + radius * math.sin(angle)
+        points.append((x, y))
+
+    # 如果 corner_radius 大于 0，则为每个角生成圆角
+    if corner_radius > 0:
+        # 调用 adjust_points_for_corner_radius 函数生成圆角路径
+        path_str = adjust_points_for_corner_radius(points, corner_radius)
+
+        # 生成 SVG 图形并返回
+        return f'''
+        <svg width="{size[0]}" height="{size[1]}" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                {generate_base_color(background_color, color_richness)[1]}
+            </defs>
+            <path d="{path_str}" fill="{generate_base_color(background_color, color_richness)[0]}" {("mask='url(#glass-mask)'" if glassmorphism else "")} />
+        </svg>
+        '''
+
+    else:
+        # 如果没有圆角，则使用原始顶点数据生成普通六边形
+        points_str = " ".join([f"{x},{y}" for x, y in points])
+        return generate_svg_base("polygon", points=points_str, background_color=background_color, size=size, padding=padding, border_color=border_color, border_width=border_width, color_richness=color_richness, glassmorphism=glassmorphism)
+
 
 def generate_triangle_base(background_color, size=(256, 256), padding=20, corner_radius=0, border_color=None, border_width=0, color_richness=1, glassmorphism=False):
     """生成带圆角的三角形底托"""
