@@ -134,6 +134,7 @@ export default function Home() {
             >
               <option value="circle">Circle</option>
               <option value="square">Square</option>
+              <option value="triangle">Triangle</option>
               <option value="hexagon">hexagon</option>
             </select>
           </label>

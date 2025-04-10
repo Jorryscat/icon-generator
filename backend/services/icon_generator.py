@@ -2,7 +2,7 @@ import math
 import os
 import re
 import colorsys
-from .components.base import generate_circle_base, generate_square_base, generate_hexagon_base  # 导入底托生成函数
+from .components.base import generate_circle_base, generate_square_base, generate_hexagon_base, generate_triangle_base  # 导入底托生成函数
 
 # 从素材库加载icon
 def load_icon(icon_name, icon_color):
@@ -24,7 +24,7 @@ def load_icon(icon_name, icon_color):
         raise ValueError(f"Icon '{icon_name}' not found")
 
 # 生成 SVG 图标的函数
-def convert_svg_to_svg(base_svg, icon_svg, icon_scale=0.6):
+def convert_svg_to_svg(base_svg, icon_svg, icon_scale=0.6, glassmorphism=False):
     """将底托和图标合成生成 SVG，并调整图标位置与大小"""
     base_width = 256
     base_height = 256
@@ -49,33 +49,45 @@ def convert_svg_to_svg(base_svg, icon_svg, icon_scale=0.6):
     # 提取图标内容，不包含外层的 <svg> 标签
     icon_content = re.sub(r'<svg[^>]*>|</svg>', '', icon_svg)
 
+    # 为图标添加阴影（如果 glassmorphism 为 True）
+    shadow_filter = ""
+    if glassmorphism:
+        shadow_filter = '''
+        <defs>
+            <filter id="icon-shadow" x="-50%" y="-50%" width="200%" height="200%">
+                <feDropShadow dx="6" dy="14" stdDeviation="8" flood-color="rgba(0, 0, 0, 0.4)" />
+            </filter>
+        </defs>
+        '''
+
     # 为图标添加缩放和位置变换
     scaled_icon_content = f'''
-    <g transform="translate({x_position}, {y_position}) scale({scaled_icon_width / original_icon_width}, {scaled_icon_height / original_icon_height})">
+    <g transform="translate({x_position}, {y_position}) scale({scaled_icon_width / original_icon_width}, {scaled_icon_height / original_icon_height})" {('filter="url(#icon-shadow)"' if glassmorphism else '')}>
         {icon_content}
     </g>'''
 
-
+    # 合并底托和图标
     combined_svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{base_width}" height="{base_height}">
+        {shadow_filter}
         {base_svg}
         {scaled_icon_content}
     </svg>'''
 
-    # print("组合后的最终 SVG:\n", combined_svg)  # 打印组合后的 SVG 信息
     return combined_svg.strip()
 
 # 生成图标函数
 def generate_flat_icon(icon_name, shape, icon_color, background_color, output_format='svg', icon_scale=0.6, corner_radius=0, border_color=None, border_width=0, glassmorphism=False, color_richness=1):
     """生成玻璃效果图标并返回 SVG 格式"""
     base_size = (256, 256)  # 设置基础尺寸
-    base_padding = 20 # 设置内边距
+    base_padding = 20  # 设置内边距
 
-    # 限制 icon_size_ratio 的范围在 0 到 1 之间
+    # 限制 icon_scale 的范围在 0 到 1 之间
     if icon_scale < 0:
         icon_scale = 0
     elif icon_scale > 1:
         icon_scale = 1
 
+    # 根据形状生成底托
     if shape == "circle":
         base_svg = generate_circle_base(
             background_color=background_color, 
@@ -101,11 +113,23 @@ def generate_flat_icon(icon_name, shape, icon_color, background_color, output_fo
             glassmorphism=glassmorphism,  # 传递玻璃效果参数
             color_richness=color_richness  # 传递颜色丰富度
         )
+    elif shape == "triangle":  # 新增三角形支持
+        base_svg = generate_triangle_base(
+            background_color=background_color, 
+            size=base_size, 
+            padding=base_padding, 
+            corner_radius=corner_radius,
+            glassmorphism=glassmorphism,  # 传递玻璃效果参数
+            color_richness=color_richness  # 传递颜色丰富度
+        )
     else:
         raise ValueError("Unsupported shape")
 
+    # 加载图标 SVG
     icon_svg = load_icon(icon_name, icon_color)
-    combined_svg = convert_svg_to_svg(base_svg, icon_svg, icon_scale)  # 生成合并后的 SVG
+
+    # 合并底托和图标，并添加阴影（如果 glassmorphism 为 True）
+    combined_svg = convert_svg_to_svg(base_svg, icon_svg, icon_scale, glassmorphism)
 
     # 返回 SVG 输出
     if output_format == 'svg':

@@ -14,6 +14,8 @@ def initialize_routes(app):
         # 确保解析出所有需要的字段
         icon_name = data.get("icon")
         shape = data.get("shape")
+        if shape not in ["circle", "square", "hexagon", "triangle"]:  # 添加对三角形的支持
+            return jsonify({"error": "Unsupported shape"}), 400
         icon_color = data.get("icon_color")
         background_color = data.get("background_color")
         output_format = data.get("format", "svg")  # 默认输出为 svg
