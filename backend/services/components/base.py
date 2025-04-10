@@ -40,48 +40,70 @@ def generate_base_color(base_color, richness):
     '''
     return "url(#gradient)", gradient_def
 
-def generate_circle_base(background_color, size=(256, 256), padding=20, border_color=None, border_width=0, color_richness=1):
+def generate_glass_mask():
+    """生成玻璃质感的蒙层"""
+    return '''
+    <defs>
+        <linearGradient id="glass-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="rgba(255, 255, 255, 0.8)" />
+            <stop offset="50%" stop-color="rgba(255, 255, 255, 0.4)" />
+            <stop offset="100%" stop-color="rgba(255, 255, 255, 0.6)" />
+        </linearGradient>
+        <mask id="glass-mask">
+            <rect x="0" y="0" width="100%" height="100%" fill="url(#glass-gradient)" />
+        </mask>
+    </defs>
+    '''
+
+def generate_svg_base(shape, points=None, background_color=None, size=(256, 256), padding=20, corner_radius=20, border_color=None, border_width=0, color_richness=1, glassmorphism=False):
+    """通用的 SVG 图形生成逻辑"""
+    # 处理基础颜色
+    fill_color, gradient_def = generate_base_color(background_color, color_richness)
+
+    # 玻璃质感蒙层
+    glass_mask = ""
+    if glassmorphism:
+        glass_mask = generate_glass_mask()
+
+    # 生成图形主体
+    if shape == "circle":
+        radius = size[0] // 2 - padding
+        center = (size[0] // 2, size[1] // 2)
+        shape_element = f'<circle cx="{center[0]}" cy="{center[1]}" r="{radius}" fill="{fill_color}" {("mask='url(#glass-mask)'" if glassmorphism else "")} />'
+    elif shape == "rect":
+        inner_size = (size[0] - 2 * padding, size[1] - 2 * padding)
+        shape_element = f'<rect x="{padding}" y="{padding}" width="{inner_size[0]}" height="{inner_size[1]}" fill="{fill_color}" rx="{corner_radius}" ry="{corner_radius}" {("mask='url(#glass-mask)'" if glassmorphism else "")} />'
+    elif shape == "polygon":
+        shape_element = f'<polygon points="{points}" fill="{fill_color}" {("mask='url(#glass-mask)'" if glassmorphism else "")} />'
+    else:
+        raise ValueError("Unsupported shape")
+
+    # 如果传递了边框颜色和宽度，添加边框
+    border = ""
+    if border_color and border_width > 0:
+        border = f'''
+        <{shape} {f'points="{points}"' if shape == "polygon" else f'x="{padding}" y="{padding}" width="{size[0] - 2 * padding}" height="{size[1] - 2 * padding}" rx="{corner_radius}" ry="{corner_radius}"'} 
+        stroke="rgb{border_color}" stroke-width="{border_width}" fill="none" />
+        '''
+
+    # 组合 SVG 内容
+    svg_content = f'''
+    {gradient_def}
+    {glass_mask}
+    {border}
+    {shape_element}
+    '''
+    return svg_content.strip()
+
+def generate_circle_base(background_color, size=(256, 256), padding=20, border_color=None, border_width=0, color_richness=1, glassmorphism=False):
     """生成圆形底托"""
-    radius = size[0] // 2 - padding
-    center = (size[0] // 2, size[1] // 2)
+    return generate_svg_base("circle", background_color=background_color, size=size, padding=padding, border_color=border_color, border_width=border_width, color_richness=color_richness, glassmorphism=glassmorphism)
 
-    # 处理基础颜色
-    fill_color, gradient_def = generate_base_color(background_color, color_richness)
-
-    # 使用基础颜色填充
-    svg_content = f'''
-    {gradient_def}
-    <circle cx="{center[0]}" cy="{center[1]}" r="{radius}" fill="{fill_color}" />
-    '''
-    # 如果传递了边框颜色和宽度，添加边框
-    if border_color and border_width > 0:
-        svg_content = f'''
-        <circle cx="{center[0]}" cy="{center[1]}" r="{radius}" stroke="rgb{border_color}" stroke-width="{border_width}" fill="none" />
-        {svg_content}  <!-- 添加边框到底托上 -->'''
-
-    return svg_content.strip()
-
-def generate_square_base(background_color, size=(256, 256), padding=20, corner_radius=20, border_color=None, border_width=0, color_richness=1):
+def generate_square_base(background_color, size=(256, 256), padding=20, corner_radius=20, border_color=None, border_width=0, color_richness=1, glassmorphism=False):
     """生成方形底托"""
-    inner_size = (size[0] - 2 * padding, size[1] - 2 * padding)
+    return generate_svg_base("rect", background_color=background_color, size=size, padding=padding, corner_radius=corner_radius, border_color=border_color, border_width=border_width, color_richness=color_richness, glassmorphism=glassmorphism)
 
-    # 处理基础颜色
-    fill_color, gradient_def = generate_base_color(background_color, color_richness)
-
-    # 使用基础颜色填充
-    svg_content = f'''
-    {gradient_def}
-    <rect x="{padding}" y="{padding}" width="{inner_size[0]}" height="{inner_size[1]}" fill="{fill_color}" rx="{corner_radius}" ry="{corner_radius}" />
-    '''
-    # 如果传递了边框颜色和宽度，添加边框
-    if border_color and border_width > 0:
-        svg_content = f'''
-        <rect x="{padding}" y="{padding}" width="{inner_size[0]}" height="{inner_size[1]}" stroke="rgb{border_color}" stroke-width="{border_width}" fill="none" rx="{corner_radius}" ry="{corner_radius}" />
-        {svg_content}  <!-- 添加边框到底托上 -->'''
-
-    return svg_content.strip()
-
-def generate_hexagon_base(background_color, size=(256, 256), padding=20, border_color=None, border_width=0, color_richness=1):
+def generate_hexagon_base(background_color, size=(256, 256), padding=20, border_color=None, border_width=0, color_richness=1, glassmorphism=False):
     """生成六边形底托"""
     radius = size[0] // 2 - padding
     center = (size[0] // 2, size[1] // 2)
@@ -95,19 +117,4 @@ def generate_hexagon_base(background_color, size=(256, 256), padding=20, border_
         points.append(f"{x},{y}")
 
     points_str = " ".join(points)
-
-    # 处理基础颜色
-    fill_color, gradient_def = generate_base_color(background_color, color_richness)
-
-    # 使用基础颜色填充
-    svg_content = f'''
-    {gradient_def}
-    <polygon points="{points_str}" fill="{fill_color}" />
-    '''
-    # 如果传递了边框颜色和宽度，添加边框
-    if border_color and border_width > 0:
-        svg_content = f'''
-        <polygon points="{points_str}" stroke="rgb{border_color}" stroke-width="{border_width}" fill="none" />
-        {svg_content}  <!-- 添加边框到底托上 -->'''
-
-    return svg_content.strip()
+    return generate_svg_base("polygon", points=points_str, background_color=background_color, size=size, padding=padding, border_color=border_color, border_width=border_width, color_richness=color_richness, glassmorphism=glassmorphism)
