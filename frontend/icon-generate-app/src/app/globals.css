@@ -84,3 +84,17 @@ body {
   );
   transform: translateX(-100%);
 }
+
+
+/* 可选：对开关添加阴影和过渡效果 */
+.shadow-md {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.transition-transform {
+  transition: transform 0.2s ease-in-out;
+}
+
+.transition-colors {
+  transition: background-color 0.2s ease-in-out;
+}

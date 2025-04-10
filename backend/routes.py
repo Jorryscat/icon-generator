@@ -21,6 +21,8 @@ def initialize_routes(app):
         border_color = data.get("border_color", None)  # 获取边框颜色参数，默认为None
         border_width = data.get("border_width", 0) ## 获取边框宽度参数，默认为0
         icon_scale = data.get("icon_scale", 0.6)  # 获取图标缩放比例，默认为0.6
+        glassmorphism = data.get("glassmorphism", False)  # 新增参数，默认 False
+        color_richness = data.get("color_richness", 1)  # 新增参数，默认 1
         
         # 检查所需参数是否存在
         if icon_color is None or background_color is None:
@@ -35,7 +37,7 @@ def initialize_routes(app):
 
         try:
             if output_format == 'svg':
-                svg_output = generate_flat_icon(icon_name, shape, icon_color, background_color, output_format='svg',icon_scale = icon_scale, corner_radius=corner_radius, border_color=border_color, border_width=border_width)
+                svg_output = generate_flat_icon(icon_name, shape, icon_color, background_color, output_format='svg',icon_scale = icon_scale, corner_radius=corner_radius, border_color=border_color, border_width=border_width, glassmorphism=glassmorphism, color_richness=color_richness)
                 return jsonify({"data": {"svg": svg_output}})
             else:
                 raise ValueError("Unsupported output format")

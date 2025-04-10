@@ -1,8 +1,10 @@
 import math
 import os
 import re
+import colorsys
 from .components.base import generate_circle_base, generate_square_base, generate_hexagon_base  # 导入底托生成函数
 
+# 从素材库加载icon
 def load_icon(icon_name, icon_color):
     """加载 SVG 图标并改变填充颜色"""
     icons_dir = os.path.join(os.path.dirname(__file__), '../icons')  # 获取icons文件夹路径
@@ -21,6 +23,7 @@ def load_icon(icon_name, icon_color):
     except FileNotFoundError:
         raise ValueError(f"Icon '{icon_name}' not found")
 
+# 生成 SVG 图标的函数
 def convert_svg_to_svg(base_svg, icon_svg, icon_scale=0.6):
     """将底托和图标合成生成 SVG，并调整图标位置与大小"""
     base_width = 256
@@ -61,7 +64,8 @@ def convert_svg_to_svg(base_svg, icon_svg, icon_scale=0.6):
     # print("组合后的最终 SVG:\n", combined_svg)  # 打印组合后的 SVG 信息
     return combined_svg.strip()
 
-def generate_flat_icon(icon_name, shape, icon_color, background_color, output_format='svg', icon_scale=0.6, corner_radius=0, border_color=None, border_width=0):
+# 生成图标函数
+def generate_flat_icon(icon_name, shape, icon_color, background_color, output_format='svg', icon_scale=0.6, corner_radius=0, border_color=None, border_width=0, glassmorphism=False, color_richness=1):
     """生成玻璃效果图标并返回 SVG 格式"""
     base_size = (256, 256)  # 设置基础尺寸
     base_padding = 20 # 设置内边距
@@ -72,14 +76,13 @@ def generate_flat_icon(icon_name, shape, icon_color, background_color, output_fo
     elif icon_scale > 1:
         icon_scale = 1
 
-
     if shape == "circle":
         base_svg = generate_circle_base(
             background_color=background_color, 
             size=base_size, 
             padding=base_padding, 
-            border_color=border_color,  # 传递边框颜色
-            border_width=border_width   # 传递边框宽度
+            # glassmorphism=glassmorphism,  # 传递玻璃效果参数
+            color_richness=color_richness  # 传递颜色丰富度
         )
     elif shape == "square":
         base_svg = generate_square_base(
@@ -87,16 +90,16 @@ def generate_flat_icon(icon_name, shape, icon_color, background_color, output_fo
             size=base_size, 
             padding=base_padding, 
             corner_radius=corner_radius,
-            border_color=border_color,  # 传递边框颜色
-            border_width=border_width   # 传递边框宽度
+            # glassmorphism=glassmorphism,  # 传递玻璃效果参数
+            color_richness=color_richness  # 传递颜色丰富度
         )
     elif shape == "hexagon":  # 新增六边形支持
         base_svg = generate_hexagon_base(
             background_color=background_color, 
             size=base_size, 
             padding=base_padding, 
-            border_color=border_color,  # 传递边框颜色
-            border_width=border_width   # 传递边框宽度
+            # glassmorphism=glassmorphism,  # 传递玻璃效果参数
+            color_richness=color_richness  # 传递颜色丰富度
         )
     else:
         raise ValueError("Unsupported shape")

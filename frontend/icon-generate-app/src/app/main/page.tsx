@@ -14,8 +14,8 @@ export default function Home() {
   const [iconOptions, setIconOptions] = useState<string[]>([]); // 图标名称列表
   const [loading, setLoading] = useState(false); // 控制 loading 状态
   const [generatedIcon, setGeneratedIcon] = useState<string | null>(null); // 存储生成的图标
-
-
+  const [glassmorphismEnabled, setGlassmorphismEnabled] = useState(false); // 新增状态
+  const [colorRichness, setColorRichness] = useState(1); // 新增状态
 
   const hexToRgb = (hex: string): [number, number, number] => {
     const r = parseInt(hex.slice(1, 3), 16);
@@ -35,6 +35,8 @@ export default function Home() {
       corner_radius: cornerRadius,
       icon_scale: iconScale,
       border_width: borderWidth,
+      glassmorphism: glassmorphismEnabled, // 新增参数
+      color_richness: colorRichness, // 新增参数
       format: "svg", // 假设输出格式为 svg
     };
 
@@ -51,21 +53,20 @@ export default function Home() {
     }
   };
 
+  // 初始化时请求图标名称
+  useEffect(() => {
+    const fetchIconNames = async () => {
+      try {
+        const response = await api.get("/icon-name"); // 请求后端接口
+        setIconOptions(response.data.icons); // 设置图标名称列表
+        setIconName(response.data.icons[0] || ""); // 默认选中第一个图标
+      } catch (error) {
+        console.error("Failed to fetch icon names:", error);
+      }
+    };
 
-    // 初始化时请求图标名称
-    useEffect(() => {
-      const fetchIconNames = async () => {
-        try {
-          const response = await api.get("/icon-name"); // 请求后端接口
-          setIconOptions(response.data.icons); // 设置图标名称列表
-          setIconName(response.data.icons[0] || ""); // 默认选中第一个图标
-        } catch (error) {
-          console.error("Failed to fetch icon names:", error);
-        }
-      };
-  
-      fetchIconNames();
-    }, []);
+    fetchIconNames();
+  }, []);
 
   return (
     <div className="grid grid-cols-2 min-h-screen font-[family-name:var(--font-geist-sans)] gap-6 bg-gradient-to-b from-gray-900 to-gray-800 text-gray-200">
@@ -113,7 +114,7 @@ export default function Home() {
             <select
               value={iconName}
               onChange={(e) => setIconName(e.target.value)}
-              className="px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-gray-800 text-gray-100"
+              className="px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:border-none focus:ring-gray-200 text-sm bg-gray-800 text-gray-100"
             >
               {iconOptions.map((icon) => (
                 <option key={icon} value={icon} className="bg-gray-800 text-gray-100 hover:bg-gray-700">
@@ -207,22 +208,72 @@ export default function Home() {
             </div>
           </label>
 
-          {/* Border Color */}
-          <label className="flex flex-col">
-            <span className="text-sm font-medium text-gray-300 mb-2">Border Color:</span>
+          {/* Glassmorphism Style */}
+          <label className="flex flex-col relative">
+            <span className="text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+              Enable Glassmorphism:
+              <div className="relative">
+                <div className="group w-4 h-4 bg-gray-500 text-white text-xs flex items-center justify-center rounded-full cursor-pointer">
+                  i
+                  <div className="absolute left-6 mt-[-20] w-48 bg-gray-800 text-gray-200 text-xs rounded-lg shadow-lg p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                    Enable or disable the glassmorphism effect for the icon.
+                  </div>
+                </div>
+              </div>
+            </span>
+            <div className="flex items-center gap-3">
+              <div
+                className={`relative w-12 h-6 flex items-center bg-gray-600 rounded-full p-1 cursor-pointer transition-colors`}
+                style={glassmorphismEnabled?{backgroundColor: "#105BFF"}:{}} // 设置背景颜色
+                onClick={() => setGlassmorphismEnabled(!glassmorphismEnabled)} // 切换开关状态
+              >
+                <div
+                  className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform ${
+                    glassmorphismEnabled ? "translate-x-6" : "translate-x-0"
+                  }`}
+                ></div>
+              </div>
+              <span className="text-sm text-gray-400">{glassmorphismEnabled ? "Enabled" : "Disabled"}</span>
+            </div>
+          </label>
+
+          {/* Color Richness */}
+          <label className="flex flex-col relative">
+            <span className="text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+              Color Richness:
+              <div className="relative">
+                <div className="group w-4 h-4 bg-gray-500 text-white text-xs flex items-center justify-center rounded-full cursor-pointer">
+                  i
+                  <div className="absolute left-6 mt-[-10] w-48 bg-gray-800 text-gray-200 text-xs rounded-lg shadow-lg p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                    Adjust the number of colors blended into the icon.
+                  </div>
+                </div>
+              </div>
+            </span>
             <div className="flex items-center gap-2">
               <input
-                type="color"
-                value={borderColor}
-                onChange={(e) => setBorderColor(e.target.value)}
-                className="w-8 h-6 rounded-lg cursor-pointer bg-gray-800 p-0"
+                type="range"
+                min="0"
+                max="4"
+                step="1"
+                value={colorRichness}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  setColorRichness(value === 0 ? 1 : value); // 强制将 0 设置为 1
+                }}
+                className="flex-1 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+                style={{
+                  background: `linear-gradient(to right, #105BFF ${Math.max((colorRichness) * 25, 25)}%, #4B5563 ${
+                    Math.max((colorRichness) * 25, 25)
+                  }%)`,
+                }}
               />
-              <span className="text-sm text-gray-400">{borderColor}</span>
+              <span className="text-sm text-gray-400 w-10 flex justify-end">{colorRichness}</span>
             </div>
           </label>
 
           {/* Border Width */}
-          <label className="flex flex-col">
+          {/* <label className="flex flex-col">
             <span className="text-sm font-medium text-gray-300 mb-2">Border Width:</span>
             <div className="flex items-center gap-2">
               <input
@@ -241,7 +292,7 @@ export default function Home() {
               />
               <span className="text-sm text-gray-400 w-10 flex justify-end">{borderWidth}px</span>
             </div>
-          </label>
+          </label> */}
 
           {/* Submit and Reset Buttons */}
           <div className="flex gap-4 mt-6 col-span-2">
@@ -259,6 +310,8 @@ export default function Home() {
                 setBorderWidth(2);
                 setIconName(iconOptions[0] || "");
                 setGeneratedIcon(null); // 清空之前生成的图标
+                setGlassmorphismEnabled(false); // 重置 Glassmorphism 状态
+                setColorRichness(1); // 重置 Color Richness 状态
               }}
             >
               Reset
