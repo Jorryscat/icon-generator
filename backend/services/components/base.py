@@ -146,6 +146,13 @@ def generate_hexagon_base(background_color, size=(256, 256), padding=20, corner_
     """生成带圆角的六边形底托，确保顶点在 Y 轴上"""
     radius = size[0] // 2 - padding
     center = (size[0] // 2, size[1] // 2)
+    
+    # 计算六边形边长
+    side_length = 2 * radius * math.sin(math.radians(30))  # 边长公式：2 * 半径 * sin(30°)
+    max_corner_radius = side_length / 2  # 圆角的最大值为边长的一半
+
+    # 限制 corner_radius 的最大值
+    corner_radius = min(corner_radius, max_corner_radius)
 
     # 计算六边形的6个顶点坐标，确保第一个顶点在正上方
     points = []

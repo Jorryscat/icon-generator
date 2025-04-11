@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import api from "@/utils/api";
+import useDebounce from "@/hooks/useDebounce";
 
 export default function Home() {
   const [iconColor, setIconColor] = useState("#ffffff");
@@ -24,8 +25,7 @@ export default function Home() {
     return [r, g, b];
   };
 
-  // 处理 Generate 按钮点击事件
-  const handleGenerate = async () => {
+  const {debouncedFunction: handleGenerate , isPending: isGenerating} = useDebounce(async () => {
     const payload = {
       icon: iconName,
       shape: baseShape,
@@ -51,6 +51,48 @@ export default function Home() {
     } finally {
       setLoading(false); // 结束加载
     }
+  });
+
+  const { debouncedFunction: handleSaveSvg, isPending: isSaving } = useDebounce(async () => {
+    try {
+      const response = await api.post("/generate-flat-icon", {
+        icon: iconName,
+        shape: baseShape,
+        icon_color: hexToRgb(iconColor),
+        background_color: hexToRgb(backgroundColor),
+        border_color: hexToRgb(borderColor),
+        corner_radius: cornerRadius,
+        icon_scale: iconScale,
+        border_width: borderWidth,
+        glassmorphism: glassmorphismEnabled,
+        color_richness: colorRichness,
+        format: "svg",
+      });
+
+      const blob = new Blob([response.data.svg], { type: "image/svg+xml" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${iconName}.svg`; // 下载文件名
+      link.click();
+      URL.revokeObjectURL(url); // 释放 URL 对象
+    } catch (error) {
+      console.error("Failed to download SVG:", error);
+    }
+  });
+
+  const handleReset = () => {
+    setIconColor("#ffffff");
+    setBackgroundColor("#3d58e8");
+    setBaseShape("square");
+    setBorderColor("#cccccc");
+    setCornerRadius(40);
+    setIconScale(0.6);
+    setBorderWidth(2);
+    setIconName(iconOptions[0] || "");
+    setGeneratedIcon(null); // 清空之前生成的图标
+    setGlassmorphismEnabled(false); // 重置 Glassmorphism 状态
+    setColorRichness(1); // 重置 Color Richness 状态
   };
 
   // 初始化时请求图标名称
@@ -73,7 +115,7 @@ export default function Home() {
       {/* Left Section */}
       <div className="flex flex-col items-center justify-center p-4 pl-10">
         <div
-          className="flex w-2/3 items-center justify-center border-2 rounded-lg glass-effect"
+          className="relative flex w-2/3 items-center justify-center border-2 rounded-lg glass-effect group"
           style={{ aspectRatio: "1 / 1" }}
         >
           {loading ? (
@@ -85,6 +127,19 @@ export default function Home() {
             ></div>
           ) : (
             <p className="text-gray-400 text-sm">Your generated SVG will appear here.</p>
+          )}
+
+          {/* Save SVG Button */}
+          {generatedIcon && (
+            <button
+              className={`absolute top-[-30] right-2 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer ${
+                isSaving ? "text-gray-600" : "text-gray-300"
+              }`}
+              onClick={handleSaveSvg}
+              disabled={isSaving} // 禁用按钮以防止重复点击
+            >
+              Save SVG
+            </button>
           )}
         </div>
       </div>
@@ -135,7 +190,7 @@ export default function Home() {
               <option value="circle">Circle</option>
               <option value="square">Square</option>
               <option value="triangle">Triangle</option>
-              <option value="hexagon">hexagon</option>
+              <option value="hexagon">Hexagon</option>
             </select>
           </label>
 
@@ -212,7 +267,7 @@ export default function Home() {
           {/* Glassmorphism Style */}
           <label className="flex flex-col relative">
             <span className="text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-              Enable Glassmorphism:
+              Enhance Texture:
               <div className="relative">
                 <div className="group w-4 h-4 bg-gray-500 text-white text-xs flex items-center justify-center rounded-full cursor-pointer">
                   i
@@ -225,7 +280,7 @@ export default function Home() {
             <div className="flex items-center gap-3">
               <div
                 className={`relative w-12 h-6 flex items-center bg-gray-600 rounded-full p-1 cursor-pointer transition-colors`}
-                style={glassmorphismEnabled?{backgroundColor: "#105BFF"}:{}} // 设置背景颜色
+                style={glassmorphismEnabled ? { backgroundColor: "#105BFF" } : {}} // 设置背景颜色
                 onClick={() => setGlassmorphismEnabled(!glassmorphismEnabled)} // 切换开关状态
               >
                 <div
@@ -264,8 +319,8 @@ export default function Home() {
                 }}
                 className="flex-1 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
                 style={{
-                  background: `linear-gradient(to right, #105BFF ${Math.max((colorRichness) * 25, 25)}%, #4B5563 ${
-                    Math.max((colorRichness) * 25, 25)
+                  background: `linear-gradient(to right, #105BFF ${Math.max(colorRichness * 25, 25)}%, #4B5563 ${
+                    Math.max(colorRichness * 25, 25)
                   }%)`,
                 }}
               />
@@ -273,47 +328,13 @@ export default function Home() {
             </div>
           </label>
 
-          {/* Border Width */}
-          {/* <label className="flex flex-col">
-            <span className="text-sm font-medium text-gray-300 mb-2">Border Width:</span>
-            <div className="flex items-center gap-2">
-              <input
-                type="range"
-                min="0"
-                max="10"
-                step="1"
-                value={borderWidth}
-                onChange={(e) => setBorderWidth(Number(e.target.value))}
-                className="flex-1 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
-                style={{
-                  background: `linear-gradient(to right, #105BFF ${borderWidth * 10}%, #4B5563 ${
-                    borderWidth * 10
-                  }%)`,
-                }}
-              />
-              <span className="text-sm text-gray-400 w-10 flex justify-end">{borderWidth}px</span>
-            </div>
-          </label> */}
-
           {/* Submit and Reset Buttons */}
           <div className="flex gap-4 mt-6 col-span-2">
             {/* Reset Button */}
             <button
               type="button"
               className="w-1/4 cursor-pointer hover:bg-gray-500 rounded-lg text-white text-sm sm:text-base bg-gray-600"
-              onClick={() => {
-                setIconColor("#ffffff");
-                setBackgroundColor("#3d58e8");
-                setBaseShape("square");
-                setBorderColor("#cccccc");
-                setCornerRadius(40);
-                setIconScale(0.6);
-                setBorderWidth(2);
-                setIconName(iconOptions[0] || "");
-                setGeneratedIcon(null); // 清空之前生成的图标
-                setGlassmorphismEnabled(false); // 重置 Glassmorphism 状态
-                setColorRichness(1); // 重置 Color Richness 状态
-              }}
+              onClick={handleReset}
             >
               Reset
             </button>
@@ -323,12 +344,19 @@ export default function Home() {
               type="button"
               onClick={handleGenerate}
               className="flex-1 py-3 tracking-wide cursor-pointer rounded-lg text-white text-sm sm:text-base relative overflow-hidden"
-              style={{ backgroundColor: "#105BFF" }}
+              style={{background: "#105BFF"}} // 设置按钮背景颜色
+              // style={{
+              //   background: `linear-gradient(to right, #105BFF,rgb(51, 201, 243))`,
+              // }}
+              disabled={isGenerating} // 禁用按钮以防止重复点击
             >
               {/* 光效层 */}
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 transition-opacity duration-300 hover:opacity-100 animate-light-flow"></span>
+              {isGenerating && (
+                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 transition-opacity duration-300 hover:opacity-100 animate-light-flow"></span>
+              )}
+              {/* <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 transition-opacity duration-300 hover:opacity-100 animate-light-flow"></span> */}
               {/* 按钮文字 */}
-              <span className="relative z-10">Generate</span>
+              {isGenerating ? "Generating..." : "Generate"}
             </button>
           </div>
         </form>

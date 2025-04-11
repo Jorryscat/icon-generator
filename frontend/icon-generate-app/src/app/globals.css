@@ -75,7 +75,7 @@ body {
 
 .animate-light-flow {
   background-size: 200% 100%;
-  animation: light-flow 1.4s infinite linear;
+  animation: light-flow 1s infinite linear;
   background: linear-gradient(
     to right,
     transparent 0%,
