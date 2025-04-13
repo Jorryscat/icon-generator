@@ -61,23 +61,23 @@ export default function RecipePage() {
       </div>
 
       {/* Content */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 w-full max-w-6xl">
+      <div className="grid grid-cols-1 mt-6 sm:grid-cols-2 md:grid-cols-4 gap-8 w-full max-w-6xl">
         {recipes.map((recipe, index) => (
           <div
             key={index}
-            className="flex flex-col items-center justify-center cursor-pointer bg-gray-800 rounded-lg p-3 shadow-lg glass-effect hover:shadow-xl hover:scale-105 transition-all duration-300 mb-3"
+            className="flex flex-col items-center justify-center cursor-pointer bg-gray-800 rounded-lg p-2 shadow-lg glass-effect hover:shadow-xl hover:scale-105 transition-all duration-300 mb-3"
             onClick={() => handleCardClick(recipe)} // 添加点击事件
           >
             {/* SVG */}
             <div className="flex items-center justify-center overflow-hidden">
               <div
-                style={{ transform: "scale(0.8)" }}
+                style={{ transform: "scale(0.5)" }}
                 dangerouslySetInnerHTML={{ __html: recipe.svg_item }}
                 className="w-full h-full"
               ></div>
             </div>
             {/* Name */}
-            <p className="text-gray-300 text-sm mt-2">{recipe.config_list.icon}</p>
+            <p className="text-gray-300 text-sm mb-2">{recipe.config_list.icon}</p>
           </div>
         ))}
       </div>

@@ -1,7 +1,7 @@
 # icon-generator# Icon Generator
 
 ## 项目简介
-本项目是一个基于 Flask 的图标生成器，使用 `Pillow`、`svgwrite` 和 `cairosvg` 处理图像和 SVG。
+本项目是一个基于 Flask 的svg图标生成器。
 
 ## 后端（flask）
 ### 环境要求
@@ -10,7 +10,6 @@
 
 ### 安装依赖
 1. `pip install -r requirements.txt`
-2. 手动安装所需库：`pip install flask pillow svgwrite cairosvg`
 
 ### 运行项目
 1. `python app.py`
@@ -35,8 +34,10 @@
 1. npm run dev
 2. 项目默认3000端口
 
+## 运行效果
+![image](https://pic1.imgdb.cn/item/67fb9fe288c538a9b5cdd8d0.jpg)
+![image](https://pic1.imgdb.cn/item/67fba02e88c538a9b5cdda00.jpg)
 
-<hr/>
 
 ## 目录结构
 icon-generator/ <br/>
