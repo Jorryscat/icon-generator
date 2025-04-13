@@ -122,13 +122,20 @@ export default function Home() {
     fetchIconNames();
   }, []);
 
-  useEffect(() => {
+
+  // 传入的参数构成（如果从recipes中选择图标跳转过来main的时候)
+  const initializeFromParams = async () => {
+    if (!searchParams.toString()) {
+      return;
+    }
+
     // 从 URL 参数中初始化状态
     const icon = searchParams.get("icon");
     const shape = searchParams.get("shape");
     const iconColorParam = searchParams.get("icon_color");
     const backgroundColorParam = searchParams.get("background_color");
     const borderColorParam = searchParams.get("border_color");
+    const borderWidthParam = searchParams.get("border_width");
     const cornerRadiusParam = searchParams.get("corner_radius");
     const iconScaleParam = searchParams.get("icon_scale");
     const colorRichnessParam = searchParams.get("color_richness");
@@ -139,35 +146,38 @@ export default function Home() {
     if (iconColorParam) setIconColor(rgbToHex(iconColorParam)); // 转换为 HEX
     if (backgroundColorParam) setBackgroundColor(rgbToHex(backgroundColorParam)); // 转换为 HEX
     if (borderColorParam) setBorderColor(rgbToHex(borderColorParam)); // 转换为 HEX
+    if (borderWidthParam) setBorderWidth(Number(borderWidthParam));
     if (cornerRadiusParam) setCornerRadius(Number(cornerRadiusParam));
     if (iconScaleParam) setIconScale(Number(iconScaleParam));
     if (colorRichnessParam) setColorRichness(Number(colorRichnessParam));
     if (glassmorphismParam) setGlassmorphismEnabled(glassmorphismParam === "true"); // 转换为布尔值
 
     // 调用生成图标的 API
-    const generateIcon = async () => {
-      try {
-        const response = await api.post("/generate-flat-icon", {
-          icon,
-          shape,
-          icon_color: iconColorParam?.split(",").map(Number),
-          background_color: backgroundColorParam?.split(",").map(Number),
-          border_color: borderColorParam?.split(",").map(Number),
-          corner_radius: Number(cornerRadiusParam),
-          icon_scale: Number(iconScaleParam),
-          color_richness: Number(colorRichnessParam),
-          glassmorphism: glassmorphismParam === "true",
-          format: "svg",
-        });
-        setGeneratedIcon(response.data.svg);
-      } catch (error) {
-        console.error("Failed to generate icon:", error);
-      }
-    };
+    try {
+      const response = await api.post("/generate-flat-icon", {
+        icon: icon || iconName,
+        shape: shape || baseShape,
+        icon_color: iconColorParam ? iconColorParam.split(",").map(Number) : hexToRgb(iconColor),
+        background_color: backgroundColorParam ? backgroundColorParam.split(",").map(Number) : hexToRgb(backgroundColor),
+        border_color: borderColorParam ? borderColorParam.split(",").map(Number) : hexToRgb(borderColor),
+        border_width: borderWidthParam ? Number(borderWidthParam) : borderWidth,
+        corner_radius: cornerRadiusParam ? Number(cornerRadiusParam) : cornerRadius,
+        icon_scale: iconScaleParam ? Number(iconScaleParam) : iconScale,
+        color_richness: colorRichnessParam ? Number(colorRichnessParam) : colorRichness,
+        glassmorphism: glassmorphismParam ? glassmorphismParam === "true" : glassmorphismEnabled,
+        format: "svg",
+      });
+      setGeneratedIcon(response.data.svg);
+    } catch (error) {
+      console.error("Failed to generate icon:", error);
+    }
+  };
 
-    generateIcon();
+  useEffect(() => {
+    initializeFromParams();
   }, [searchParams]);
 
+  
   return (
     <div className="grid grid-cols-2 min-h-screen font-[family-name:var(--font-geist-sans)] gap-6 bg-gradient-to-b from-gray-900 to-gray-800 text-gray-200">
       {/* Left Section */}
