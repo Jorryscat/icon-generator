@@ -1,3 +1,4 @@
+import json
 import os
 from flask import Flask, jsonify, request, Response
 from flask_cors import CORS
@@ -75,3 +76,21 @@ def initialize_routes(app):
             if filename.endswith(".svg")
         ]
         return jsonify({"data":{"icons": icon_names}})
+    
+    
+    @app.route("/api/recipes", methods=["GET"])
+    def get_recipes():
+        """返回配方列表，包括 SVG 数据和配置参数"""
+        recipes_file = os.path.join(os.getcwd(), "data", "recipes.json")
+        if not os.path.exists(recipes_file):
+            return jsonify({"error": "Recipes file not found"}), 404
+
+        with open(recipes_file, "r", encoding="utf-8") as file:
+            recipes_data = json.load(file)
+
+        # 为每个 svg_item 动态生成唯一的 gradient 定义
+        for i, recipe in enumerate(recipes_data["recipes"]):
+            recipe["svg_item"] = recipe["svg_item"].replace("id=\"gradient\"", f"id=\"gradient{i}\"")
+            recipe["svg_item"] = recipe["svg_item"].replace("url(#gradient)", f"url(#gradient{i})")
+
+        return jsonify({"data": recipes_data})

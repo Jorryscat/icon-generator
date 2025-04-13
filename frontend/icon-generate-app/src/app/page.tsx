@@ -43,6 +43,7 @@ export default function Home() {
           </button>
           <button
             className="px-8 py-3 tracking-wide cursor-pointer bg-gray-600 hover:bg-gray-700 rounded-lg text-white text-sm sm:text-base ml-4 bounce-on-hover"
+            onClick={() => router.push("/recipes")}
           >
             在线配方
           </button>

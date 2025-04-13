@@ -22,7 +22,18 @@
 3. 安装依赖
 4. `deactivate` 关闭虚拟环境
 
-## 前端（React）
+## 前端（React/typescript/nextjs/tailwind css）
+### 环境要求 
+1. node >= 16
+2. npm 或 yarn 包管理工具
+
+### 安装依赖
+1. cd frontend/icon-generate-app
+2. npm install 或 yarn install
+
+### 运行项目
+1. npm run dev
+2. 项目默认3000端口
 
 
 <hr/>
@@ -33,17 +44,26 @@ icon-generator/ <br/>
 │ ├── app.py # 应用入口 <br/>
 │ ├── config.py # 配置文件 <br/>
 │ ├── routes.py # API 路由 <br/>
-│ ├── icons/ #基础样式图标库 <br/>
+│ ├── icons/ # 基础样式图标库 <br/>
 │ ├── services/ # 业务逻辑 <br/>
 │ │ └── icon_generator.py # 图标生成器 <br/>
 │ └── style.css # 样式文件 <br/>
-├── frontend/ # React 前端 <br/>
+├── frontend/icon-generate-app/ # React 前端 <br/>
 │ ├── package.json # 依赖管理文件 <br/>
 │ ├── src/ # 源代码目录 <br/>
-│ │ ├── App.jsx # 主组件 <br/>
-│ │ ├── components/ # 组件目录 <br/>
-│ │ │ └── IconGenerator.js # 图标生成器组件 <br/>
-│ │ ├── styles/ # 样式目录 <br/>
-│ │ │ └── App.css # 样式文件 <br/>
-│ └── public/ # 公共静态资源（如 favicon.ico） <br/>
-└── README.md # 项目说明文档    
+│ │ ├── app/ # 应用页面 <br/>
+│ │ │ ├── main/ # 主页面 <br/>
+│ │ │ │ └── page.tsx # 主页面逻辑 <br/>
+│ │ │ ├── layout.tsx # 全局布局 <br/>
+│ │ │ └── globals.css # 全局样式 <br/>
+│ │ ├── hooks/ # 自定义 Hook <br/>
+│ │ │ └── useDebounce.ts # 防抖 Hook <br/>
+│ │ ├── utils/ # 工具函数 <br/>
+│ │ │ └── api.ts # Axios 配置 <br/>
+│ ├── public/ # 公共静态资源 <br/>
+│ │ ├── cover1.png # 背景图片 <br/>
+│ │ └── logo.png # Logo 图片 <br/>
+│ ├── tailwind.config.js # Tailwind CSS 配置 <br/>
+│ ├── next.config.ts # Next.js 配置文件 <br/>
+│ └── tsconfig.json # TypeScript 配置 <br/>
+└── README.md # 项目说明文档 <br/>

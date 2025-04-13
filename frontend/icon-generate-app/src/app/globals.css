@@ -61,6 +61,17 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease-in-out;
+}
+
+/* 悬浮效果 */
+.hover\:shadow-xl:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.hover\:scale-105:hover {
+  transform: scale(1.05);
+  /* border: 1px solid rgba(255, 255, 255, 0.2); */
 }
 
 /* 定义 light-flow 动画 */

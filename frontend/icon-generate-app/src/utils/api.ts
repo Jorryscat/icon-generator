@@ -1,7 +1,8 @@
 import axios from "axios";
+// const NEXT_PUBLIC_API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL as string;
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/api", // 设置基础路径
+  baseURL: "http://localhost:5000/api", // API 基础 URL
   timeout: 5000, // 请求超时时间
 });
 

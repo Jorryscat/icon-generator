@@ -1,9 +1,11 @@
 "use client";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import api from "@/utils/api";
 import useDebounce from "@/hooks/useDebounce";
 
 export default function Home() {
+  const searchParams = useSearchParams(); // 获取 URL 参数
   const [iconColor, setIconColor] = useState("#ffffff");
   const [backgroundColor, setBackgroundColor] = useState("#3d58e8");
   const [borderColor, setBorderColor] = useState("#cccccc");
@@ -24,6 +26,14 @@ export default function Home() {
     const b = parseInt(hex.slice(5, 7), 16);
     return [r, g, b];
   };
+
+  
+  // 工具函数：将 RGB 转换为 HEX
+  const rgbToHex = (rgb: string): string => {
+    const [r, g, b] = rgb.split(",").map(Number);
+    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+  };
+
 
   const {debouncedFunction: handleGenerate , isPending: isGenerating} = useDebounce(async () => {
     const payload = {
@@ -46,6 +56,8 @@ export default function Home() {
     try {
       const response = await api.post("/generate-flat-icon", payload);
       setGeneratedIcon(response.data.svg); // 假设后端返回的是 SVG 字符串
+      console.log("发送的数据",JSON.stringify(payload)); // 打印发送的数据
+      console.log("返回的数据",JSON.stringify(response.data.svg)); // 打印返回的数据
     } catch (error) {
       console.error("Failed to generate icon:", error);
     } finally {
@@ -101,7 +113,7 @@ export default function Home() {
       try {
         const response = await api.get("/icon-name"); // 请求后端接口
         setIconOptions(response.data.icons); // 设置图标名称列表
-        setIconName(response.data.icons[0] || ""); // 默认选中第一个图标
+        setIconName(searchParams.get("icon") || response.data.icons[0]); // 默认选中第一个图标
       } catch (error) {
         console.error("Failed to fetch icon names:", error);
       }
@@ -109,6 +121,52 @@ export default function Home() {
 
     fetchIconNames();
   }, []);
+
+  useEffect(() => {
+    // 从 URL 参数中初始化状态
+    const icon = searchParams.get("icon");
+    const shape = searchParams.get("shape");
+    const iconColorParam = searchParams.get("icon_color");
+    const backgroundColorParam = searchParams.get("background_color");
+    const borderColorParam = searchParams.get("border_color");
+    const cornerRadiusParam = searchParams.get("corner_radius");
+    const iconScaleParam = searchParams.get("icon_scale");
+    const colorRichnessParam = searchParams.get("color_richness");
+    const glassmorphismParam = searchParams.get("glassmorphism");
+
+    if (icon) setIconName(icon);
+    if (shape) setBaseShape(shape);
+    if (iconColorParam) setIconColor(rgbToHex(iconColorParam)); // 转换为 HEX
+    if (backgroundColorParam) setBackgroundColor(rgbToHex(backgroundColorParam)); // 转换为 HEX
+    if (borderColorParam) setBorderColor(rgbToHex(borderColorParam)); // 转换为 HEX
+    if (cornerRadiusParam) setCornerRadius(Number(cornerRadiusParam));
+    if (iconScaleParam) setIconScale(Number(iconScaleParam));
+    if (colorRichnessParam) setColorRichness(Number(colorRichnessParam));
+    if (glassmorphismParam) setGlassmorphismEnabled(glassmorphismParam === "true"); // 转换为布尔值
+
+    // 调用生成图标的 API
+    const generateIcon = async () => {
+      try {
+        const response = await api.post("/generate-flat-icon", {
+          icon,
+          shape,
+          icon_color: iconColorParam?.split(",").map(Number),
+          background_color: backgroundColorParam?.split(",").map(Number),
+          border_color: borderColorParam?.split(",").map(Number),
+          corner_radius: Number(cornerRadiusParam),
+          icon_scale: Number(iconScaleParam),
+          color_richness: Number(colorRichnessParam),
+          glassmorphism: glassmorphismParam === "true",
+          format: "svg",
+        });
+        setGeneratedIcon(response.data.svg);
+      } catch (error) {
+        console.error("Failed to generate icon:", error);
+      }
+    };
+
+    generateIcon();
+  }, [searchParams]);
 
   return (
     <div className="grid grid-cols-2 min-h-screen font-[family-name:var(--font-geist-sans)] gap-6 bg-gradient-to-b from-gray-900 to-gray-800 text-gray-200">
@@ -212,6 +270,7 @@ export default function Home() {
           <label className="flex flex-col">
             <span className="text-sm font-medium text-gray-300 mb-2">Corner Radius:</span>
             <div className="flex items-center">
+              
               <input
                 type="range"
                 min="0"
@@ -343,8 +402,8 @@ export default function Home() {
             <button
               type="button"
               onClick={handleGenerate}
-              className="flex-1 py-3 tracking-wide cursor-pointer rounded-lg text-white text-sm sm:text-base relative overflow-hidden"
-              style={{background: "#105BFF"}} // 设置按钮背景颜色
+              className="flex-1 py-3 tracking-wide cursor-pointer rounded-lg text-white text-sm sm:text-base relative overflow-hidden ${}"
+              style={isGenerating? {background: "#407cff"}:{background:"#105BFF"}} // 设置按钮背景颜色
               // style={{
               //   background: `linear-gradient(to right, #105BFF,rgb(51, 201, 243))`,
               // }}
