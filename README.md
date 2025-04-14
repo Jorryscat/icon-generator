@@ -64,6 +64,7 @@ icon-generator/ <br/>
 │   │   │   │   └── page.tsx # 配方页面逻辑 <br/>
 │   │   │   ├── layout.tsx # 全局布局 <br/>
 │   │   │   └── globals.css # 全局样式 <br/>
+│   │   │   └── page.tsx # 首页 <br/>
 │   │   ├── hooks/ # 自定义 Hook <br/>
 │   │   │   └── useDebounce.ts # 防抖 Hook <br/>
 │   │   ├── utils/ # 工具函数 <br/>
