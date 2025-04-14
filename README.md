@@ -42,29 +42,36 @@
 ## 目录结构
 icon-generator/ <br/>
 ├── backend/ # Flask 后端 <br/>
-│ ├── app.py # 应用入口 <br/>
-│ ├── config.py # 配置文件 <br/>
-│ ├── routes.py # API 路由 <br/>
-│ ├── icons/ # 基础样式图标库 <br/>
-│ ├── services/ # 业务逻辑 <br/>
-│ │ └── icon_generator.py # 图标生成器 <br/>
-│ └── style.css # 样式文件 <br/>
+│   ├── app.py # 应用入口 <br/>
+│   ├── config.py # 配置文件 <br/>
+│   ├── routes.py # API 路由 <br/>
+│   ├── icons/ # 基础样式图标库 <br/>
+│   ├── services/ # 业务逻辑 <br/>
+│   │   ├── components/ # 组件模块 <br/>
+│   │   │   └── base.py # 基础图形生成逻辑 <br/>
+│   │   └── icon_generator.py # 图标生成器 <br/>
+│   ├── data/ # 数据文件 <br/>
+│   │   └── recipes.json # 图标配方数据 <br/>
+│   ├── style.css # 样式文件 <br/>
+│   └── requirements.txt # 后端依赖文件 <br/>
 ├── frontend/icon-generate-app/ # React 前端 <br/>
-│ ├── package.json # 依赖管理文件 <br/>
-│ ├── src/ # 源代码目录 <br/>
-│ │ ├── app/ # 应用页面 <br/>
-│ │ │ ├── main/ # 主页面 <br/>
-│ │ │ │ └── page.tsx # 主页面逻辑 <br/>
-│ │ │ ├── layout.tsx # 全局布局 <br/>
-│ │ │ └── globals.css # 全局样式 <br/>
-│ │ ├── hooks/ # 自定义 Hook <br/>
-│ │ │ └── useDebounce.ts # 防抖 Hook <br/>
-│ │ ├── utils/ # 工具函数 <br/>
-│ │ │ └── api.ts # Axios 配置 <br/>
-│ ├── public/ # 公共静态资源 <br/>
-│ │ ├── cover1.png # 背景图片 <br/>
-│ │ └── logo.png # Logo 图片 <br/>
-│ ├── tailwind.config.js # Tailwind CSS 配置 <br/>
-│ ├── next.config.ts # Next.js 配置文件 <br/>
-│ └── tsconfig.json # TypeScript 配置 <br/>
+│   ├── package.json # 依赖管理文件 <br/>
+│   ├── src/ # 源代码目录 <br/>
+│   │   ├── app/ # 应用页面 <br/>
+│   │   │   ├── main/ # 主页面 <br/>
+│   │   │   │   └── page.tsx # 主页面逻辑 <br/>
+│   │   │   ├── recipes/ # 配方页面 <br/>
+│   │   │   │   └── page.tsx # 配方页面逻辑 <br/>
+│   │   │   ├── layout.tsx # 全局布局 <br/>
+│   │   │   └── globals.css # 全局样式 <br/>
+│   │   ├── hooks/ # 自定义 Hook <br/>
+│   │   │   └── useDebounce.ts # 防抖 Hook <br/>
+│   │   ├── utils/ # 工具函数 <br/>
+│   │   │   └── api.ts # Axios 配置 <br/>
+│   ├── public/ # 公共静态资源 <br/>
+│   │   ├── cover1.png # 背景图片 <br/>
+│   │   └── logo.png # Logo 图片 <br/>
+│   ├── tailwind.config.js # Tailwind CSS 配置 <br/>
+│   ├── next.config.ts # Next.js 配置文件 <br/>
+│   └── tsconfig.json # TypeScript 配置 <br/>
 └── README.md # 项目说明文档 <br/>
